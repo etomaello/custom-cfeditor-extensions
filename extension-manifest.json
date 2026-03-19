@@ -1,0 +1,13 @@
+{
+  "name": "demo-tomaello",
+  "id": "demo-tomaello",
+  "description": "demo-tomaello-description",
+  "version": "0.0.1",
+  "headerMenuButtons": [
+    {
+      "label": "Custom",
+      "needsModal": true,
+      "id": "custom"
+    }
+  ]
+}
