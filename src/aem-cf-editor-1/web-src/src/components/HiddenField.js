@@ -24,49 +24,51 @@ const HiddenField = (props) => {
       const contentFragment = await connection.host.contentFragment.getContentFragment();
       const contentFragmentPath = contentFragment.path;
       // sezione per chiamata recupero email utente
-      const profileHeaders = new Headers();
-      profileHeaders.append("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
-      profileHeaders.append("Authorization", "Bearer " + imsToken);
-      const raw = "type=access_token&client_id=exc_app&token=" + imsToken;
-      const requestOptionsProfile = {
-        method: "POST",
-        headers: profileHeaders,
-        body: raw,
-        redirect: "follow"
+      const profileHeaders = {
+        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+        "Authorization": `Bearer ${imsToken}`
       };
-      const userID = await fetch("https://ims-na1.adobelogin.com/ims/profile/v1", requestOptionsProfile)
-        .then((response) => response.text())
-        .then((result) => JSON.parse(result).email)
-        .catch((error) => console.error(error));
+      let userID;
+      try {
+        const profileResponse = await fetch("https://ims-na1.adobelogin.com/ims/profile/v1", {
+          method: "POST",
+          headers: profileHeaders,
+          body: `type=access_token&client_id=exc_app&token=${imsToken}`,
+          redirect: "follow"
+        });
+        const profileResult = await profileResponse.json();
+        userID = profileResult.email;
+      } catch (error) {
+        console.error(error);
+      }
 
       // sezione per chiamata alla servlet di controllo permessi modifica
       const aemRequestHeaders = new Headers();
-      aemRequestHeaders.append("Authorization", "Bearer " + imsToken);
+      aemRequestHeaders.append("Authorization", `Bearer ${imsToken}`);
       const requestOptionsAEM = {
         method: "GET",
         headers: profileHeaders
       };
       //const servletPath = 'https://' + aemHost + '/bin/inps/checkCFGrants.json';
       const servletPath = 'https://' + '5171-37-179-25-30.ngrok-free.app' + '/bin/inps/checkCFGrants.json'; // TEST
-      await fetch(servletPath + '?cfPath=' + contentFragmentPath + '&user=' + userID, requestOptionsAEM).then(response => response.status).then(status => {
-        if (status !== 200) {
-          disableFields = true;
-        }
-      });
+      const grantResponse = await fetch(`${servletPath}?cfPath=${contentFragmentPath}&user=${userID}`, requestOptionsAEM);
+      if (grantResponse.status !== 200) {
+        disableFields = true;
+      }
 
       // settaggio valori e proprietà del campo hidden
       const fieldModel = await connection.host.field.getModel();
       setName(fieldModel.name);
       setLabel(fieldModel.fieldLabel);
       setValue(disableFields);
-      console.log("Ensure saving with the default hidden value " + fieldModel.name + "=" + disableFields);
+      console.log(`Ensure saving with the default hidden value ${fieldModel.name}=${disableFields}`);
       const dataApi = await connection.host.dataApi.get();
-      dataApi.setValue(fieldModel.name, disableFields).then(() => {
-          console.log("Data saved");
-        }
-      ).catch((error) => {
+      try {
+        await dataApi.setValue(fieldModel.name, disableFields);
+        console.log("Data saved");
+      } catch (error) {
         console.error("Error saving data: ", error);
-      });
+      }
     }
     init().catch(console.error);
   }, []);
