@@ -1,0 +1,63 @@
+#+----------------------------------------------------------+
+#|               Evite alterar este arquivo                 |
+#|              Só altere se for recomendado                |
+#| Alterações erradas podem impactar a entrega da aplicação |
+#+----------------------------------------------------------+
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: comp-cf-editor-unicom-v1
+  namespace: azure
+  description: ""
+  tags:
+    - component
+    - standard
+  annotations:
+    # Backstage default annotations  
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/code-coverage: scm-only
+    backstage.io/kubernetes-id: "comp-cf-editor-unicom-v1"
+    backstage.io/template-origin: template:azure/component-base-cloud
+
+    # Governance App
+    techarch.governance-app.application: "adobe-experience-manager-b2b"
+    techarch.governance-app.module: "aem-sites"
+    techarch.governance-app.technical_component_type: "none"
+    techarch.governance-app.technical_component_intrastructure_type: ""
+    techarch.governance-app.provider: "n/a"
+    techarch.governance-app.acronym: "adbb"
+    techarch.governance-app.ic: "tlv_si_adobe experience manager b2b"
+    techarch.governance-app.uuid: "723abec9-05b4-11f0-ba0d-922155829d59"
+    techarch.governance-app.spti: "PTI-6256"
+    techarch.governance-app.projeto: "Unicommerce: E-commerce Unificado"
+
+    
+    # KUBERNTES
+    vivo.io/kubernetes-k8s-namespace-dev: "adbb-dev"
+    vivo.io/kubernetes-k8s-namespace-esteira1: "adbb-esteira1"
+    vivo.io/kubernetes-k8s-namespace-esteira2: "adbb-esteira2"
+    vivo.io/kubernetes-k8s-namespace-preprod: "adbb-preprod"
+    vivo.io/kubernetes-k8s-namespace-prodlike: "adbb-prodlike"
+    vivo.io/kubernetes-k8s-namespace-producao: "adbb-prod"
+
+    # Azure DevOps Plugin
+    dev.azure.com/project-repo: "ADBB - ADOBE EXPERIENCE MANAGER B2B/comp-cf-editor-unicom-v1"
+    dev.azure.com/project: "ADBB - ADOBE EXPERIENCE MANAGER B2B"
+    dev.azure.com/repo: "comp-cf-editor-unicom-v1"
+    dev.azure.com/organization: "telefonica-vivo-brasil"
+
+    # Sonarqube Plugin
+    sonarqube.org/project-key: "comp-cf-editor-unicom-v1ba9b8d20-ff72-416a-afca-cf6b6cdbe6c3"
+
+    # Framework
+    arqtech.telefonica.com.br/framework: none
+    arqtech.telefonica.com.br/framework-version: none
+
+    # Language
+    arqtech.telefonica.com.br/language: none
+    arqtech.telefonica.com.br/language-version: none
+spec:
+  type: service
+  lifecycle: experimental   
+  owner: "undefined-owner"
+  system: aem-sites

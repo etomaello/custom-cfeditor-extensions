@@ -34,7 +34,7 @@ export default function () {
   return (
     <Provider theme={defaultTheme} colorScheme='light'>
       <Content width="100%">
-        <Text>Your modal content for "Custom"</Text>
+        <Text>Your modal content for "Customone"</Text>
 
         <Flex width="100%" justifyContent="end" alignItems="center" marginTop="size-400">
           <ButtonGroup align="end">

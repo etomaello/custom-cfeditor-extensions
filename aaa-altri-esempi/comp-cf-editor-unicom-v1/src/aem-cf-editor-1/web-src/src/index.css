@@ -1,0 +1,13 @@
+/*
+* <license header>
+*/
+
+html,
+body {
+  margin: 0;
+}
+div[role='presentation'] {
+  top: 0;
+  left: 0;
+  right: auto;
+}

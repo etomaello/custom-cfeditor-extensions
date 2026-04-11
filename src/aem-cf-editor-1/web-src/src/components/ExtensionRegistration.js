@@ -2,11 +2,15 @@
  * <license header>
  */
 
-import { Text } from "@adobe/react-spectrum";
-import { register } from "@adobe/uix-guest";
-import { extensionId } from "./Constants";
+import {Text} from "@adobe/react-spectrum";
+import {register} from "@adobe/uix-guest";
+import {extensionId} from "./Constants";
 
 function ExtensionRegistration() {
+  const search = new URLSearchParams(window.location.search);
+  if (search.get('repo') != 'author-p127204-e1900935.adobeaemcloud.com' ) {
+    return; // skip extension registration if repo does not match desired one
+  }
   const init = async () => {
     const guestConnection = await register({
       id: extensionId,
@@ -29,6 +33,16 @@ function ExtensionRegistration() {
                   });
                 },
               },
+            ];
+          },
+        },
+        field: {
+          getDefinitions: () => {
+            return [
+              {
+                fieldNameExp: '^isDisabled$',
+                url: '/#/hidden-field',
+              }
             ];
           },
         },

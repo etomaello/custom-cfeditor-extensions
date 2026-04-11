@@ -1,0 +1,54 @@
+{
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "label": "isDisabled",
+        "scope": "#/properties/isDisabled"
+      },
+      {
+        "type": "Control",
+        "label": "Fieldone",
+        "scope": "#/properties/fieldone",
+        "rule": {
+          "effect": "DISABLE",
+          "condition": {
+            "scope": "#/properties/isDisabled",
+            "schema": {
+              "const": true
+            }
+          }
+        }
+      },
+      {
+        "type": "Control",
+        "label": "fieldtwo",
+        "scope": "#/properties/fieldtwo",
+        "rule": {
+          "effect": "DISABLE",
+          "condition": {
+            "scope": "#/properties/isDisabled",
+            "schema": {
+              "const": true
+            }
+          }
+        }
+      },
+      {
+        "type": "Control",
+        "label": "Fieldthree",
+        "scope": "#/properties/fieldthree",
+        "rule": {
+          "effect": "DISABLE",
+          "condition": {
+            "scope": "#/properties/isDisabled",
+            "schema": {
+              "const": true
+            }
+          }
+        }
+      }
+    ]
+  }
+}

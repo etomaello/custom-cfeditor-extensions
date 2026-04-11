@@ -3,14 +3,21 @@
  */
 
 import React from "react";
+import { Provider, defaultTheme } from '@adobe/react-spectrum';
 import ErrorBoundary from "react-error-boundary";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import ExtensionRegistration from "./ExtensionRegistration";
-import CustomModal from "./CustomModal";
 import HiddenField from "./HiddenField";
+import ExternalInfoButtonField from "./ExternalInfoButtonField";
+import IndexingField from "./IndexingField";
+import TableField from "./TableField";
+import LocalizedField from "./LocalizedField";
+import RailContent from "./RailContent";
 
 function App() {
+
   return (
+    <Provider theme={defaultTheme} colorScheme="light">
     <Router>
       <ErrorBoundary onError={onError} FallbackComponent={fallbackComponent}>
         <Routes>
@@ -20,17 +27,36 @@ function App() {
             element={<ExtensionRegistration />}
           />
           <Route
-            exact path="/hidden-field"
-            element={<HiddenField/>}
-          />
+             path="hidden-field/:hiddenValue"
+                        element={<HiddenField/>}
+                    />
           <Route
-            exact path="custom-modal"
-            element={<CustomModal />}
-          />
+            exact path="externalinfobutton-field/:apiSelector"
+                        element={<ExternalInfoButtonField/>}
+                    />
+          <Route
+            exact path="indexing-field"
+                        element={<IndexingField/>}
+                    />
+          <Route
+            exact path="table-field/:tableDataConfigurationName"
+                        element={<TableField/>}
+                    />
+           <Route
+            exact path="localized-field"
+                        element={<LocalizedField/>}
+                    />
+
+           <Route
+                        exact path="rail/prova"
+                        element={<RailContent />}
+                    />
+
           {/* @todo YOUR CUSTOM ROUTES SHOULD BE HERE */}
         </Routes>
       </ErrorBoundary>
     </Router>
+    </Provider>
   )
 
   // Methods
