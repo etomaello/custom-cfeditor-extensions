@@ -50,7 +50,7 @@ const HiddenField = (props) => {
         headers: profileHeaders
       };
       //const servletPath = 'https://' + aemHost + '/bin/inps/checkCFGrants.json';
-      const servletPath = 'https://' + '5171-37-179-25-30.ngrok-free.app' + '/bin/inps/checkCFGrants.json'; // TEST
+      const servletPath = 'https://' + '0ca5-195-12-229-104.ngrok-free.app' + '/bin/inps/checkCFGrants.json'; // TEST
       const grantResponse = await fetch(`${servletPath}?cfPath=${contentFragmentPath}&user=${userID}`, requestOptionsAEM);
       if (grantResponse.status !== 200) {
         disableFields = true;

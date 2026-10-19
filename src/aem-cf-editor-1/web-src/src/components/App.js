@@ -8,6 +8,7 @@ import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import ExtensionRegistration from "./ExtensionRegistration";
 import CustomModal from "./CustomModal";
 import HiddenField from "./HiddenField";
+import SelectField from "./SelectField";
 
 function App() {
   return (
@@ -22,6 +23,10 @@ function App() {
           <Route
             exact path="/hidden-field"
             element={<HiddenField/>}
+          />
+          <Route
+            exact path="/select-field"
+            element={<SelectField/>}
           />
           <Route
             exact path="custom-modal"
