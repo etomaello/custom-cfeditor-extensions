@@ -3,18 +3,16 @@
  */
 
 import React, {useEffect, useState} from "react";
-import {Provider, Text, defaultTheme} from "@adobe/react-spectrum";
 import {register} from "@adobe/uix-guest";
 import {extensionId} from "./Constants";
 
 function ExtensionRegistration() {
   const [error, setError] = useState(null);
-  const supportedRepo = new URLSearchParams(window.location.search).get("repo")
+  const enabled = window.parent !== window && new URLSearchParams(window.location.search).get("repo")
     === "author-p127204-e1900935.adobeaemcloud.com";
-  const hosted = window.parent !== window;
 
   useEffect(() => {
-    if (!supportedRepo || !hosted) {
+    if (!enabled) {
       return;
     }
     let active = true;
@@ -44,19 +42,17 @@ function ExtensionRegistration() {
             },
           },
           field: {
-            getDefinitions: () => {
-              return [
-                {
-                  fieldNameExp: '^isDisabled$',
-                  url: '/#/hidden-field',
-                },
-                {
-                  fieldNameExp: '^field0$',
-                  modelPathExp: '^/conf/global/settings/dam/cfm/models/cf-model-select$',
-                  url: '/#/select-field',
-                }
-              ];
-            },
+            getDefinitions: () => [
+              {
+                fieldNameExp: '^isDisabled$',
+                url: '/#/hidden-field',
+              },
+              {
+                fieldNameExp: '^field0$',
+                modelPathExp: '^/conf/global/settings/dam/cfm/models/cf-model-select$',
+                url: '/#/select-field',
+              },
+            ],
           },
         },
       });
@@ -70,20 +66,14 @@ function ExtensionRegistration() {
     return () => {
       active = false;
     };
-  }, [supportedRepo, hosted]);
+  }, [enabled]);
 
   return (
-    <Provider theme={defaultTheme}>
-      {error ? (
-        <div role="alert">Unable to register the extension: {error}</div>
-      ) : (
-        <Text>
-          {supportedRepo && hosted
-            ? "IFrame for integration with Host (AEM)..."
-            : "Open this extension through the AEM Content Fragment Editor dev-mode URL for the supported repository."}
-        </Text>
-      )}
-    </Provider>
+    <p role={error ? "alert" : undefined}>
+      {error ? `Unable to register the extension: ${error}` : enabled
+        ? "IFrame for integration with Host (AEM)..."
+        : "Open this extension through the AEM Content Fragment Editor dev-mode URL for the supported repository."}
+    </p>
   );
 }
 

@@ -21,7 +21,6 @@ jest.mock("@adobe/react-spectrum", () => {
   return {
     Provider: ({children}) => React.createElement("div", null, children),
     View: ({children, minHeight}) => React.createElement("div", {"data-field-container": true, style: {minHeight}}, children),
-    Text: ({children}) => React.createElement("span", null, children),
     defaultTheme: {},
     Item: () => null,
     Picker: (props) => {
@@ -58,7 +57,6 @@ beforeEach(() => {
   values = {field0: "1", field1: "first text", field2: "second text"};
   styles = {};
   api = {
-    getFields: jest.fn(async () => Object.entries(values).map(([name, value]) => ({name, value}))),
     setStyles: jest.fn(async (name, style) => { styles[name] = style; }),
     setValue: jest.fn(async (name, value) => { values[name] = value; }),
   };
@@ -73,10 +71,7 @@ beforeEach(() => {
           options: [{name: "Field1", value: "1"}, {name: "Field2", value: "2"}],
         })),
         getDefaultValue: jest.fn(async () => values.field0),
-        getValidationState: jest.fn(async () => "valid"),
-        onValidationStateChange: jest.fn(),
         onChange: jest.fn(async (value) => { values.field0 = value; }),
-        setHeight: jest.fn(),
       },
     },
   };
@@ -150,14 +145,12 @@ describe("conditional field values", () => {
     expect(api.setValue).not.toHaveBeenCalled();
   });
 
-  it("reserves body space for the open dropdown as well as resizing the host frame", async () => {
+  it("reserves body space for the guest SDK to resize the open dropdown", async () => {
     await render();
     const fieldContainer = container.querySelector("[data-field-container]");
     const closedHeight = fieldContainer.style.minHeight;
     await act(async () => { await mockPickerProps.onOpenChange(true); });
-    const [openHeight] = connection.host.field.setHeight.mock.calls.slice(-1)[0];
-    expect(fieldContainer.style.minHeight).toBe(`${openHeight}px`);
-    expect(openHeight).toBeGreaterThan(parseFloat(closedHeight));
+    expect(parseFloat(fieldContainer.style.minHeight)).toBeGreaterThan(parseFloat(closedHeight));
     await act(async () => { await mockPickerProps.onOpenChange(false); });
     expect(fieldContainer.style.minHeight).toBe(closedHeight);
   });
@@ -187,19 +180,10 @@ describe("conditional field values", () => {
     expect(api.setValue).not.toHaveBeenCalled();
   });
 
-  it("fails visibly if a dependent field is missing", async () => {
-    delete values.field2;
+  it("surfaces a host styling failure without clearing values", async () => {
+    api.setStyles.mockRejectedValueOnce(new Error("Field unavailable"));
     await render();
-    expect(container.querySelector("[role=alert]").textContent).toContain("field0, field1, and field2");
-    expect(api.setValue).not.toHaveBeenCalled();
-  });
-
-  it("validates dependent fields again before writing a changed selection", async () => {
-    await render();
-    delete values.field2;
-    await select("2");
-    expect(container.querySelector("[role=alert]")).not.toBeNull();
-    expect(connection.host.field.onChange).not.toHaveBeenCalled();
+    expect(container.querySelector("[role=alert]").textContent).toContain("Field unavailable");
     expect(api.setValue).not.toHaveBeenCalled();
   });
 

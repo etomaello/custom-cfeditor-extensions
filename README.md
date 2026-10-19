@@ -71,8 +71,7 @@ Troubleshooting:
   inspect the fragment and reload rather than assuming the operation was
   atomic.
 - The guest SDK automatically sizes its iframe from the body. The picker
-  reserves body height while open as well as requesting host resizing, so
-  this automatic sizing does not clip the menu.
+  reserves body height while open so the menu is not clipped.
 - In the current AEM editor, Canvas Data API `setStyles` hides a text field
   and its label, but its separately rendered character counter can remain
   visible. The extension does not manipulate the cross-origin host DOM to
