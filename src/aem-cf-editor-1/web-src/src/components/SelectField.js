@@ -3,12 +3,10 @@ import {attach} from "@adobe/uix-guest";
 import {Provider, View, Picker, Item, defaultTheme} from "@adobe/react-spectrum";
 import {extensionId} from "./Constants";
 
-async function updateDependentFields(connection, value, clearHidden = false) {
+async function clearHiddenFields(connection, value) {
   const api = await connection.host.dataApi.get();
   for (const [name, selection] of [["field1", "1"], ["field2", "2"]]) {
-    const visible = value === selection;
-    await api.setStyles(name, {display: visible ? "" : "none"});
-    if (clearHidden && !visible) {
+    if (value !== selection) {
       await api.setValue(name, "");
     }
   }
@@ -49,13 +47,9 @@ function SelectField() {
       if (!active.current) {
         return;
       }
-      const initialValue = defaultValue == null ? "" : defaultValue;
-      await updateDependentFields(conn, initialValue);
-      if (active.current) {
-        setConnection(conn);
-        setModel(fieldModel);
-        setValue(initialValue);
-      }
+      setConnection(conn);
+      setModel(fieldModel);
+      setValue(defaultValue == null ? "" : defaultValue);
     };
     init().catch(reportError);
     return () => {
@@ -75,7 +69,7 @@ function SelectField() {
       if (!active.current) {
         return;
       }
-      await updateDependentFields(connection, nextValue, true);
+      await clearHiddenFields(connection, nextValue);
       if (active.current) {
         setValue(nextValue);
       }

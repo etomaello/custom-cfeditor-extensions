@@ -23,14 +23,23 @@ The `field0` override applies only to the `CF Model Select` model at
 `Picker` and the AEM guest connection; the model's enumeration values remain
 strings, not numbers.
 
+Visibility is handled by the model's persisted `uiSchema` at
+`/conf/global/settings/dam/cfm/models/cf-model-select/jcr:content/uiSchema`.
+The controls for `field1` and `field2` need `SHOW` rules scoped to
+`#/properties/field0`, with `schema: {"const": "1"}` and
+`schema: {"const": "2"}`, respectively. Configure these rules in each target
+environment; they are not installed by this extension. The extension only
+updates `field0` and clears hidden values after selection changes. It does not
+apply field styles.
+
 | `field0` | Visible field | Hidden field cleared after changing the selection |
 | --- | --- | --- |
 | `"1"` (Field1) | `field1` | `field2` |
 | `"2"` (Field2) | `field2` | `field1` |
 | Empty or unexpected | Neither | Both |
 
-Opening a fragment changes visibility only: existing values are never cleared on
-initial load, even if they belong to a hidden field. Selecting the same value
+Opening a fragment lets AEM apply visibility rules: the extension never writes
+values on initial load, even if they belong to a hidden field. Selecting the same value
 again also does not clear anything. AEM can autosave changed selections and
 cleared values, so use a test fragment when trying this behavior.
 
@@ -53,9 +62,11 @@ and verify the reverse. After each change, wait for saving before using
 can represent cleared text as `null`.
 
 To check the no-clear-on-open policy, temporarily open a test fragment without
-the `devMode` and `ext` parameters, populate both text fields, and wait for
-saving. Reopen the dev-mode URL: only the selected field should appear, but
-both stored values should remain until the selection changes.
+the `devMode` and `ext` parameters. Switch between the choices to populate both
+text fields, and wait for saving. The UI-schema rules still control visibility
+without the extension, but do not clear values. Reopen the dev-mode URL: only
+the selected field should appear, but both stored values should remain until
+the selection changes.
 
 Troubleshooting:
 
@@ -72,10 +83,9 @@ Troubleshooting:
   atomic.
 - The guest SDK automatically sizes its iframe from the body. The picker
   reserves body height while open so the menu is not clipped.
-- In the current AEM editor, Canvas Data API `setStyles` hides a text field
-  and its label, but its separately rendered character counter can remain
-  visible. The extension does not manipulate the cross-origin host DOM to
-  work around this host limitation.
+- If both text fields are visible, check that the model's `uiSchema` contains
+  the `SHOW` rules. Native UI-schema visibility hides the whole field,
+  including its character counter. The visible field retains its native counter.
 
 ## Test & Coverage
 

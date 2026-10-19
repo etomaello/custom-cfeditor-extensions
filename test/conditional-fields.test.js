@@ -42,7 +42,6 @@ let container;
 let connection;
 let api;
 let values;
-let styles;
 let consoleError;
 const originalParent = Object.getOwnPropertyDescriptor(window, "parent");
 
@@ -55,9 +54,8 @@ beforeEach(() => {
   window.history.replaceState(null, "", `/?repo=${repository}`);
   consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
   values = {field0: "1", field1: "first text", field2: "second text"};
-  styles = {};
   api = {
-    setStyles: jest.fn(async (name, style) => { styles[name] = style; }),
+    setStyles: jest.fn(),
     setValue: jest.fn(async (name, value) => { values[name] = value; }),
   };
   connection = {
@@ -95,19 +93,15 @@ async function select(value) {
 }
 
 describe("conditional field values", () => {
-  it.each([
-    ["1", "", "none"],
-    ["2", "none", ""],
-    ["", "none", "none"],
-    ["unexpected", "none", "none"],
-  ])("initializes %p without modifying any values", async (value, firstDisplay, secondDisplay) => {
+  it.each(["1", "2", "", "unexpected", null, undefined])("initializes %p without accessing canvas data or modifying values", async (value) => {
     values.field0 = value;
     await render();
-    expect(styles).toEqual({field1: {display: firstDisplay}, field2: {display: secondDisplay}});
     expect(mockPickerProps.selectedKey).toBe(value === "1" || value === "2" ? value : null);
     expect(mockPickerProps.label).toBe("Choose a field");
     expect(connection.host.field.onChange).not.toHaveBeenCalled();
+    expect(connection.host.dataApi.get).not.toHaveBeenCalled();
     expect(api.setValue).not.toHaveBeenCalled();
+    expect(api.setStyles).not.toHaveBeenCalled();
     expect(values).toEqual({field0: value, field1: "first text", field2: "second text"});
   });
 
@@ -117,31 +111,30 @@ describe("conditional field values", () => {
   ])("changes %s to %s and clears only %s", async (initial, next, hidden, visible, retainedText) => {
     values.field0 = initial;
     await render();
-    const initialSnapshots = connection.host.dataApi.get.mock.calls.length;
     await select(next);
     expect(connection.host.field.onChange).toHaveBeenCalledWith(next);
     expect(api.setValue).toHaveBeenCalledTimes(1);
     expect(api.setValue).toHaveBeenCalledWith(hidden, "");
     expect(values[visible]).toBe(retainedText);
     expect(values[hidden]).toBe("");
-    expect(styles[hidden]).toEqual({display: "none"});
-    expect(styles[visible]).toEqual({display: ""});
+    expect(api.setStyles).not.toHaveBeenCalled();
     expect(mockPickerProps.selectedKey).toBe(next);
-    expect(connection.host.dataApi.get.mock.calls.length).toBeGreaterThan(initialSnapshots);
+    expect(connection.host.dataApi.get).toHaveBeenCalledTimes(1);
   });
 
-  it.each([null, "unexpected"])("hides and clears both fields after changing to %p", async (next) => {
+  it.each([null, "unexpected"])("clears both fields after changing to %p without applying styles", async (next) => {
     await render();
     await select(next);
     expect(connection.host.field.onChange).toHaveBeenCalledWith(next == null ? "" : next);
     expect(api.setValue.mock.calls).toEqual([["field1", ""], ["field2", ""]]);
-    expect(styles).toEqual({field1: {display: "none"}, field2: {display: "none"}});
+    expect(api.setStyles).not.toHaveBeenCalled();
   });
 
   it("does not clear fields when the same selection is reported again", async () => {
     await render();
     await select("1");
     expect(connection.host.field.onChange).not.toHaveBeenCalled();
+    expect(connection.host.dataApi.get).not.toHaveBeenCalled();
     expect(api.setValue).not.toHaveBeenCalled();
   });
 
@@ -180,10 +173,13 @@ describe("conditional field values", () => {
     expect(api.setValue).not.toHaveBeenCalled();
   });
 
-  it("surfaces a host styling failure without clearing values", async () => {
-    api.setStyles.mockRejectedValueOnce(new Error("Field unavailable"));
+  it("surfaces a canvas data failure after changing the selection without clearing values", async () => {
     await render();
-    expect(container.querySelector("[role=alert]").textContent).toContain("Field unavailable");
+    connection.host.dataApi.get.mockRejectedValueOnce(new Error("Canvas unavailable"));
+    await select("2");
+    expect(connection.host.field.onChange).toHaveBeenCalledWith("2");
+    expect(container.querySelector("[role=alert]").textContent).toContain("Canvas unavailable");
+    expect(consoleError).toHaveBeenCalled();
     expect(api.setValue).not.toHaveBeenCalled();
   });
 
